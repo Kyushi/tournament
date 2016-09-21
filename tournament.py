@@ -79,6 +79,11 @@ def playerStandings():
         wins: the number of matches the player has won
         matches: the number of matches the player has played
     """
+    query = """
+            SELECT p.pid, p.name, count(m.winner) AS wins, count(matches) AS matches
+            FROM players as p, matches as m
+            WHERE p.pid = m.winner
+            """
     conn = connect()
     cur = conn.cursor()
     cur.execute(query)
