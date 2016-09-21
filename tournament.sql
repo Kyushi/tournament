@@ -13,7 +13,6 @@ CREATE TABLE players (
 
 CREATE TABLE matches (
   mid serial PRIMARY KEY,
-  player_id_1 integer references players (pid),
-  player_id_2 integer references players (pid),
-  winner integer
+  winner integer references players (pid),
+  loser integer references players (pid)
 );

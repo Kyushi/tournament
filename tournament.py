@@ -18,7 +18,6 @@ def list_tables(conn):
 def deleteMatches():
     """Remove all the match records from the database."""
     conn = connect()
-    print "Connection: %s" % str(list_tables(conn))
     cur = conn.cursor()
     cur.execute("DELETE FROM matches")
     conn.commit()
@@ -44,7 +43,6 @@ def countPlayers():
     rows = cur.fetchone()
     conn.close()
     count = rows[0] if rows else 0
-    print "Rows: %s, Count: %s" % (str(rows),str(count))
     return count
 
 
@@ -65,6 +63,21 @@ def registerPlayer(name):
     conn.close()
     return
 
+def get_players():
+    """Returns a list of all registered players.
+
+     Returns:
+     A list of tuples with all players (id, name) that are registered for the
+     tournament.
+    """
+    query = """SELECT * FROM players"""
+    conn = connect()
+    cur = conn.cursor()
+    cur.execute(query)
+    rows = cur.fetchall()
+    conn.close()
+    players = [(row[0], row[1]) for row in rows]
+    return players
 
 def playerStandings():
     """Returns a list of the players and their win records, sorted by wins.
@@ -80,16 +93,22 @@ def playerStandings():
         matches: the number of matches the player has played
     """
     query = """
-            SELECT p.pid, p.name, count(m.winner) AS wins, count(matches) AS matches
-            FROM players as p, matches as m
-            WHERE p.pid = m.winner
+            SELECT players.pid, players.name,
+                (SELECT count(winner)
+                 FROM matches
+                 WHERE players.pid = winner) as wins,
+                (SELECT count(*)
+                 FROM matches
+                 WHERE players.pid = winner OR players.pid = loser) as total
+            FROM players
+            ORDER BY wins DESC, total DESC
             """
     conn = connect()
     cur = conn.cursor()
     cur.execute(query)
-    rows = cur.fetchall()
+    results = cur.fetchall()
     conn.close()
-    return
+    return results
 
 
 def reportMatch(winner, loser):
@@ -99,6 +118,13 @@ def reportMatch(winner, loser):
       winner:  the id number of the player who won
       loser:  the id number of the player who lost
     """
+    query = """INSERT INTO matches (winner, loser) VALUES(%s,%s)"""
+    conn = connect()
+    cur = conn.cursor()
+    cur.execute(query, (winner, loser))
+    conn.commit()
+    conn.close()
+    return
 
 
 def swissPairings():
@@ -116,3 +142,13 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
+    standings = playerStandings()
+    pairings = []
+    i = 0
+    while i < len(standings):
+        pairings.append((standings[i][0], \
+                        standings[i][1], \
+                        standings[i+1][0], \
+                        standings[i+1][1]))
+        i += 2
+    return pairings
