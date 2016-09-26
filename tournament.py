@@ -1,19 +1,12 @@
 #!/usr/bin/env python
 #
 # tournament.py -- implementation of a Swiss-system tournament
-#
-# TODO: make sure that only new pairs are created
 
 import psycopg2
-
 
 def connect():
     """Connect to the PostgreSQL database.  Returns a database connection."""
     return psycopg2.connect("dbname=tournament")
-
-def list_tables(conn):
-    cur = conn.cursor()
-    return cur.execute("SELECT table_schema, table_name FROM information_schema.tables")
 
 
 def deleteMatches():
@@ -59,6 +52,7 @@ def registerPlayer(name):
     """
     conn = connect()
     cur = conn.cursor()
+    # use query parameter to pass player name to query
     cur.execute("INSERT INTO players (name) VALUES(%s)", (name,))
     conn.commit()
     conn.close()
@@ -77,6 +71,7 @@ def get_players():
     cur.execute(query)
     rows = cur.fetchall()
     conn.close()
+    # create list of tuples of players with id and name from results
     players = [(row[0], row[1]) for row in rows]
     return players
 
@@ -93,6 +88,9 @@ def playerStandings():
         wins: the number of matches the player has won
         matches: the number of matches the player has played
     """
+    # Select player ID, name from payers table, and count wins and total matches
+    # from matches for each player, order by wins and totals. Creation of view
+    # is not necessary here because this does not need to be used elsewhere.
     query = """
             SELECT players.pid, players.name,
                 (SELECT count(winner)
@@ -145,6 +143,7 @@ def swissPairings():
     """
     standings = playerStandings()
     pairings = []
+    # iterate through latest standings. Pairs players 1&2, 3&4 etc.
     i = 0
     while i < len(standings):
         pairings.append((standings[i][0], \
