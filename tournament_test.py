@@ -147,7 +147,12 @@ def testPairings():
     print "10. After one match, players with one win are properly paired."
 
 def finish_tournament():
+    """
+    Plays out 4 rounds of a swiss tournament.
 
+    Output:
+    Prints th results of each round.
+    """
     for i in range(1,5):
         print "Round %d: %s" % (i,str(playerStandings()))
         pairings = swissPairings()
