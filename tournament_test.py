@@ -146,10 +146,21 @@ def testPairings():
                 "After one match, players with one win should be paired.")
     print "10. After one match, players with one win are properly paired."
 
+def finish_tournament():
+
+    for i in range(1,5):
+        print "Round %d: %s" % (i,str(playerStandings()))
+        pairings = swissPairings()
+        for pair in pairings:
+            reportMatch(pair[0], pair[2])
+    return
+
+
 
 if __name__ == '__main__':
     testCount()
     testStandingsBeforeMatches()
     testReportMatches()
     testPairings()
+    finish_tournament()
     print "Success!  All tests pass!"

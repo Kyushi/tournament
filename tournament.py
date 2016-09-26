@@ -2,6 +2,7 @@
 #
 # tournament.py -- implementation of a Swiss-system tournament
 #
+# TODO: make sure that only new pairs are created
 
 import psycopg2
 
