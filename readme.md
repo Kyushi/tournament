@@ -20,6 +20,6 @@ In the 'matches' table, the results of matches between players can be entered. T
 ## Quickstart ##
 
 1. Download or clone this repository.
-2. Create `tournament` database (`create database tournament`)
-3. Run tournament.sql (`psql tournament.sql`) to create players and matches tables
-4. For testing, run `python tournament_test.py`
+* Run `psql`
+* In psql, run `\i tournament.sql` to import the file for database and table creation. Database 'tournament' and tables 'players' and 'matches' will be created. *WARNING: Existing 'tournament' database will be dropped and created as an empty database. Please back up existing databases named 'tournament' if present.* 
+* For testing, run `python tournament_test.py`
